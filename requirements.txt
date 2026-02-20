@@ -1,10 +1,10 @@
 Flask
 flask-bcrypt
-tensorflow
-opencv-python
+tensorflow==2.15.0
+opencv-python-headless==4.9.0.80
 numpy
 pymongo
-huggingface-hub
+huggingface-hub==1.3.2
 xhtml2pdf
 cloudinary
 python-dotenv
