@@ -1,0 +1,128 @@
+{% extends 'basic.html' %}
+
+{% block content %}
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+
+    /* max-width: 2000px;
+    min-height: 420px;   
+    padding: 40px; 
+     */
+    width: 100%;
+    min-height: 500px;
+    padding: 50px;
+}
+
+.glass-card p {
+    margin-bottom: 8px;
+    font-size: 18px;
+    padding: 10px;
+}
+
+.profile-img {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.glass-btn {
+    backdrop-filter: blur(6px);
+    background: rgba(255,255,255,0.35);
+    border: none;
+    border-radius: 12px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: 0.3s ease;
+}
+
+.glass-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+}
+</style>
+
+<div class="container-fluid px-5">
+
+<div class="container mt-4">
+
+  <div class="glass-card p-4">
+
+    <div class="row align-items-center">
+
+        <!-- Profile Photo -->
+        <div class="col-md-4 text-center">
+        {% if session.get('gender') == 'Male' %}
+           <img src="{{ url_for('static', filename='images/male_profile.png') }}" class="rounded-circle shadow"  style="width: 180px; height: 180px; object-fit: cover; border: 4px solid #f1f1f1;">
+        {% else %}
+          <img src="{{ url_for('static', filename='images/female_profile.png') }}" class="rounded-circle shadow"  style="width: 180px; height: 180px; object-fit: cover; border: 4px solid #f1f1f1;">
+        {% endif %}
+        
+        <br><br>
+        <h4 class="mb-3">
+          {{ session['fullname'] }}
+        </h4>
+
+        </div>
+
+        
+
+      <!-- User Details -->
+      <div class="col-md-8">
+
+        <div class="row">
+
+          <!-- Column 1 -->
+          <div class="col-md-6">
+            <p><strong>Username:</strong> {{ session['username'] }}</p>
+            <p><strong>Email:</strong> {{ session['email'] }}</p>
+            <p><strong>Phone:</strong> {{ session['phone'] }}</p>
+            <p><strong>Address:</strong> {{ session['address'] }}</p>
+          </div>
+
+          <!-- Column 2 -->
+          <div class="col-md-6">
+            <p><strong>Gender:</strong> {{ session['gender'] }}</p>
+            <p><strong>DOB:</strong> {{ session['dob'] }}</p>
+            <p><strong>Age:</strong> {{ session['age'] }}</p>
+            <p><strong>Created At:</strong> {{ session['created_at'] }}</p>
+            <p><strong>Last Login:</strong> {{ session['logged_in_at'] }}</p>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <br><br><br>
+
+    <!-- Buttons -->
+    <div class="text-center mt-4">
+
+      <a href="{{ url_for('predict') }}" class="btn glass-btn me-3">
+        🔬 Start Analysis
+      </a>
+
+      <a href="{{ url_for('view_history') }}" class="btn glass-btn">
+        📜 View History
+      </a>
+
+    </div>
+
+  </div>
+
+</div>
+</div>
+
+<br><br><br><br><br>
+
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends "basic.html" %}
+
+{% block content %}
+
+
+<div class="p-5 mb-4 bg-light rounded-3 shadow-sm">
+  <div class="container-fluid py-4">
+
+    <h1 class="display-5 fw-bold">
+        Intelligent Brain Tumor Detection
+    </h1>
+
+    <p class="lead mt-3">
+        Early detection plays a critical role in improving treatment outcomes. 
+        <strong>Brain Tumor AI</strong> assists users by leveraging deep learning models 
+        to analyze MRI scans and classify potential tumor types with high accuracy.
+    </p>
+
+    <p>
+        Upload an MRI image, and our AI system will process the scan using advanced 
+        convolutional neural networks to identify tumor categories such as 
+        <strong>Glioma</strong>, <strong>Meningioma</strong>, <strong>Pituitary Tumor</strong>, 
+        or detect the absence of tumors.
+    </p>
+
+    <p>
+        The platform provides prediction confidence, clinical descriptions, symptoms, 
+        and general treatment insights — offering an educational understanding of 
+        medical imaging analysis powered by AI.
+    </p>
+
+    <a href="{{ url_for('predict') }}" class="btn btn-success btn-lg mt-2">
+        🔬 Start Analysis
+    </a>
+
+  </div>
+</div>
+
+
+<h3 class="text-center mb-4">🚀 System Capabilities</h3>
+
+<div class="row text-center">
+
+    <div class="col-md-4 mb-3">
+        <div class="card feature-card shadow-sm">
+            <div class="card-body">
+                <h5>🧠 AI Classification</h5>
+                <p>
+                    Deep learning models trained on MRI datasets to detect 
+                    and classify brain tumors.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card feature-card shadow-sm">
+            <div class="card-body">
+                <h5>📊 Confidence Metrics</h5>
+                <p>
+                    View prediction certainty through intuitive confidence bars 
+                    and probability scores.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card feature-card shadow-sm">
+            <div class="card-body">
+                <h5>📄 Clinical Insights</h5>
+                <p>
+                    Understand tumor characteristics, symptoms, and general 
+                    treatment approaches.
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="mt-5 p-4 bg-dark text-light rounded shadow-sm">
+    <div class="row">
+
+        <div class="col-md-6">
+            <h4>💡 Why This Project?</h4>
+            <p>
+                This system demonstrates how Artificial Intelligence can assist 
+                medical imaging workflows, supporting radiology analysis and 
+                healthcare research.
+            </p>
+        </div>
+
+        <div class="col-md-6">
+            <h4>⚠ Important Disclaimer</h4>
+            <p>
+                This tool is strictly for educational purposes and should not 
+                replace professional medical consultation.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

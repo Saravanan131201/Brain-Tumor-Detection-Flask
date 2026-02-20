@@ -1,0 +1,97 @@
+{% extends "basic.html" %}
+{% block content %}
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    max-width: 1100px;
+    margin: auto;
+}
+
+.result-box {
+    background: rgba(255,255,255,0.35);
+    border-radius: 15px;
+    padding: 25px;
+    margin-top: 25px;
+}
+
+.progress {
+    height: 20px;
+    border-radius: 10px;
+}
+
+.progress-bar {
+    font-weight: bold;
+}
+</style>
+
+ <h3 class="text-center mb-4">Prediction History</h3>
+
+<div class="glass-card">
+
+
+    {% if predictions %}
+
+    {% for prediction in predictions %}
+
+    <div class="result-box">
+
+        <!-- <h4 class="text-center mb-3">Prediction Result</h4> -->
+
+        <p class="text-center">
+            Predicted Date: <b>{{ prediction.predicted_at }}</b>
+        </p>
+
+        <br>
+
+        <div class="text-center">
+            <img src="{{ prediction.image_url }}"
+                 class="img-fluid rounded shadow"
+                 style="max-height: 280px;">
+        </div>
+
+
+
+
+        <h5 class="text-center mt-3">
+            Diagnosis: <b>{{ prediction.prediction }}</b>
+        </h5>
+
+        <p class="text-center">
+            Confidence: <b>{{ "%.2f"|format(prediction.confidence * 100) }}%</b>
+        </p>
+
+        <div class="progress mb-3">
+           <div class="progress-bar" style="--width-percent: {{ prediction.confidence * 100 }}%; width: var(--width-percent);"></div>
+        </div>
+
+        <hr>
+
+        <div class="text-center mt-3">
+            <a href="/report/{{ prediction.pred_id }}"
+               class="btn btn-success btn-lg">
+                📄 Download AI Report
+            </a>
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+    
+    {% else %}
+    
+     <center><p>No Predictions available</p></center>
+
+    {% endif %}
+
+
+</div>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+{% endblock %}

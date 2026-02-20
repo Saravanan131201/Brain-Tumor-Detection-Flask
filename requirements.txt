@@ -1,0 +1,12 @@
+Flask
+flask-bcrypt
+tensorflow
+opencv-python
+numpy
+pymongo
+huggingface-hub
+xhtml2pdf
+cloudinary
+python-dotenv
+pytz
+gunicorn
