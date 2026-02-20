@@ -83,8 +83,8 @@ def load_class_names():
     with open(path, "r") as f:
         return json.load(f)
 
-model_cnn = load_model("brain_tumor_model.keras")
-model_vgg = load_model("brain_tumor_model_vgg16.keras")
+model_cnn = load_model("brain_tumor_model.h5")
+model_vgg = load_model("brain_tumor_model_vgg16.h5")
 class_names = load_class_names()
 
 #image preprocessing
