@@ -9,4 +9,5 @@ xhtml2pdf
 cloudinary
 python-dotenv
 pytz
+groq
 gunicorn
