@@ -78,7 +78,7 @@ DISEASE_INFO = {
 #load model
 def load_model(model_file):
     path = hf_hub_download(repo_id=REPO_ID, filename=model_file)
-    return tf.keras.models.load_model(path)
+    return tf.keras.models.load_model(path, compile=False)
 
 def load_class_names():
     path = hf_hub_download(repo_id=REPO_ID, filename="class_names.json")
