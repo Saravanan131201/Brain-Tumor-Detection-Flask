@@ -13,3 +13,4 @@ db = client["brain_tumor_db"]
 
 users_collection = db["users"]
 predictions_collection = db["predictions"]
+chats_collection = db["chat_history"]

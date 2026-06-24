@@ -1,5 +1,7 @@
 import base64
-from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash, make_response
+from groq import Groq
+import re
+from flask import Flask, render_template, request, redirect, url_for, session, send_file, flash, jsonify
 from flask_bcrypt import Bcrypt
 import numpy as np
 import cv2
@@ -10,9 +12,9 @@ import uuid
 import json
 import os
 import pytz
-from huggingface_hub import hf_hub_download
+from huggingface_hub import hf_hub_download, InferenceClient
 from xhtml2pdf import pisa
-from db import users_collection, predictions_collection
+from db import users_collection, predictions_collection, chats_collection
 
 import cloudinary
 import cloudinary.uploader
@@ -39,7 +41,7 @@ ist = pytz.timezone('Asia/Kolkata')
 
 bcrypt = Bcrypt(app)
 
-
+client = Groq(api_key=os.getenv("GROK_API_KEY"))
 
 REPO_ID = "Sharav1312/brain-tumor-models"
 
@@ -93,6 +95,27 @@ def predict_image(image, model, img_size=128):
     img = np.expand_dims(img, axis=0)
     preds = model.predict(img)
     return np.argmax(preds), float(np.max(preds))
+
+
+
+# Inject chat into ALL pages
+@app.context_processor
+def inject_chat():
+
+    if "user_id" not in session:
+        return dict(chat_messages=None)
+
+    user_id = session["user_id"]
+
+    chat_doc = chats_collection.find_one({
+        "user_id": user_id
+    })
+
+    predictions = list(predictions_collection.find({"user_id" : user_id}))
+
+    messages = chat_doc["messages"] if chat_doc else []
+
+    return dict(chat_messages=messages, predictions=predictions)
 
 
 #routes
@@ -178,6 +201,42 @@ def login():
             flash("Invalid credentials !!!", 'error')
 
     return render_template("login.html")
+
+
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = users_collection.find_one({'email': email})
+        if user:
+            token = str(uuid.uuid4())
+            reset_tokens[token] = user['user_id']
+            flash("Password reset link generated.", "info")
+            return redirect(url_for('reset_password', token=token))
+        else:
+            flash("Email not found", "danger")
+    return render_template('forgot_password.html')
+
+
+reset_tokens = {}
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    user_id = reset_tokens.get(token)
+    if not user_id:
+        flash("Invalid or expired token", "danger")
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        new_password = request.form.get('password')
+        hashed_pw = bcrypt.generate_password_hash(new_password).decode('utf-8')
+        users_collection.update_one({"user_id": user_id}, {"$set": {"password": hashed_pw}})
+        reset_tokens.pop(token)
+        flash("Password updated successfully", "success")
+        return redirect(url_for('login'))
+
+    return render_template('reset_password.html')
 
 
 
@@ -339,6 +398,116 @@ def logout():
 @app.route("/user/user_profile")
 def user_profile():
     return render_template("user_profile.html")
+
+
+
+
+@app.route("/assistant/chat", methods=["POST"])
+def assistant_chat():
+
+    if "user_id" not in session:
+        return jsonify({
+            "reply": "Session expired, Please login to continue",
+            "redirect": "/login"   
+        }), 401
+
+    user_id = session["user_id"]
+    user_message = request.form["message"]
+
+    chats_collection.update_one(
+        {"user_id": user_id},
+        {
+            "$push": {
+                "messages": {
+                    "role": "user",
+                    "content": user_message
+                }
+            }
+        },
+        upsert=True
+    )
+
+    chat_doc = chats_collection.find_one({
+        "user_id": user_id,
+    })
+
+    messages = chat_doc["messages"]
+
+    groq_messages = [{
+        "role": "system",
+        "content": """You are TumorAI Assistant.
+
+RULES:
+- Do NOT provide diagnosis
+- Do NOT prescribe treatment
+- Do NOT make medical claims
+- Explain predictions, MRI analysis concepts, AI limitations
+- Encourage consulting medical professionals
+
+STYLE:
+- Use SHORT paragraphs
+- Use bullet points when helpful
+- Avoid long blocks of text
+- Be calm, clear, supportive
+
+PREDICTION CONTEXT RULE:
+If user mentions a tumor prediction:
+- Treat it as AI classification output
+- Explain uncertainty & confidence responsibly
+- Never imply medical certainty
+"""
+    }]
+
+    for msg in messages:
+        role = "assistant" if msg["role"] == "bot" else "user"
+
+        groq_messages.append({
+            "role": role,
+            "content": msg["content"]
+        })
+
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=groq_messages,
+        temperature=0,
+        max_tokens=200
+    )
+
+    raw_reply = response.choices[0].message.content
+
+    def format_reply_html(text):
+        # Convert bold-style *text* into <strong>text</strong>
+        text =  re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", text)
+
+        # Convert lines starting with "-" or "•" into bullet points
+        lines = text.split("\n")
+        html_lines = []
+        for line in lines:
+            striped = line.strip()
+            if striped.startswith("-") or striped.startswith("•"):
+                # remove symbol and add bullet HTML
+                content = striped[1:].strip()
+                html_lines.append(f"• {content}")
+            else:
+                html_lines.append(striped)
+      
+        return "<br>".join(html_lines)
+
+    bot_reply_html = format_reply_html(raw_reply)
+
+    chats_collection.update_one(
+        {"user_id": user_id},
+        {
+            "$push": {
+                "messages": {
+                    "role": "bot",
+                    "content": bot_reply_html
+                }
+            }
+        }
+    )
+
+    return jsonify({"reply": bot_reply_html})
 
 
 if __name__ == "__main__":
