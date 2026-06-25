@@ -2,8 +2,8 @@ Flask
 flask-bcrypt
 tensorflow==2.20.0
 keras==3.13.2
-opencv-python-headless==4.9.0.80
-numpy
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
 pymongo
 huggingface-hub==1.3.2
 xhtml2pdf
