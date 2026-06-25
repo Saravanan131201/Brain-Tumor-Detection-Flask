@@ -1,6 +1,7 @@
 Flask
 flask-bcrypt
-tensorflow==2.15.0
+tensorflow==2.20.0
+keras==3.13.2
 opencv-python-headless==4.9.0.80
 numpy
 pymongo
