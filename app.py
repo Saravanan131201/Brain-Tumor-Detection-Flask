@@ -84,10 +84,46 @@ def load_class_names():
     path = hf_hub_download(repo_id=REPO_ID, filename="class_names.json")
     with open(path, "r") as f:
         return json.load(f)
+    
+model_cnn = None
+model_vgg = None
+class_names = None
 
-model_cnn = load_model("brain_tumor_model.h5")
-model_vgg = load_model("brain_tumor_model_vgg16.h5")
-class_names = load_class_names()
+def get_cnn_model():
+    global model_cnn
+
+    if model_cnn is None:
+        print("Loading CNN model...")
+        model_cnn = load_model(
+            "brain_tumor_model.h5"
+        )
+        print("CNN model loaded.")
+
+    return model_cnn
+
+
+def get_vgg_model():
+    global model_vgg
+
+    if model_vgg is None:
+        print("Loading VGG16 model...")
+        model_vgg = load_model(
+            "brain_tumor_model_vgg16.h5"
+        )
+        print("VGG16 model loaded.")
+
+    return model_vgg
+
+
+def get_class_names():
+    global class_names
+
+    if class_names is None:
+        print("Loading class names...")
+        class_names = load_class_names()
+        print("Class names loaded.")
+
+    return class_names
 
 #image preprocessing
 def predict_image(image, model, img_size=128):
@@ -280,11 +316,19 @@ def predict():
             image_url = upload_result["secure_url"]
 
             model_choice = request.form["model"]
-            model = model_cnn if model_choice == "cnn" else model_vgg
+
+            if model_choice == "cnn":
+                model = get_cnn_model()
+            else:
+                model = get_vgg_model()
+            
+            classes = get_class_names()
+            
+
 
             class_idx, confidence = predict_image(image_rgb, model)
 
-            raw_label = class_names[class_idx].lower()
+            raw_label = classes[class_idx].lower()
             label = CLASS_NAME_MAP.get(raw_label, raw_label)
             info = DISEASE_INFO[label]
 
